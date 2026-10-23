@@ -42,7 +42,8 @@ def add_sources_recursively(dir: str, glob_sources, exclude_folder: list = []):
 
 
 add_sources_recursively("src/", sources, ["editor"])
-add_sources_recursively("thirdparty/", sources)
+add_sources_recursively("thirdparty/", sources, ["godot-cpp"])
+
 
 
 def _generate_doc_data() -> list[str]:

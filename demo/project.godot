@@ -12,11 +12,15 @@ config_version=5
 
 auto_generate_dbfactory=true
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="Demo"
 run/main_scene="res://dragonbones_demo/demo.tscn"
-config/features=PackedStringArray("4.3", "GL Compatibility")
+config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [editor_plugins]
 
