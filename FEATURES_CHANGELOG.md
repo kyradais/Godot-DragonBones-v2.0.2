@@ -1,9 +1,28 @@
 # Added Features: Light Occlusion Support for DragonBones
 
 ## Overview
-The recent branch (`Godot-DragonBones`) extends the original `Godot-DragonBones-Ori` by integrating **light occlusion** capabilities for `DragonBonesArmatureView`.  This allows the armature to behave as a true light occluder in `Godot 4.x`, enabling per‑node occlusion, shadow offsets, convex hull generation, and light mask control.
+The recent branch (`Godot-DragonBones`) extends the original `Godot-DragonBones-Ori` by integrating **light occlusion** capabilities for `DragonBonesArmatureView`. This allows the armature to behave as a true light occluder in `Godot 4.x`, enabling per‑node occlusion, shadow offsets, convex hull generation, and light mask control.
 
-> This file is meant to serve as a running specification when creating new feature branches.
+> This file serves as a comprehensive technical specification and changelog detailing every implementation detail, pitfall solved, and registration requirement necessary to replicate this feature in other Godot 4 GDExtension plugins.
+
+## Critical Implementation Details & Pitfalls Overcome
+
+When implementing this feature in GDExtension (`godot-cpp`), several non-obvious requirements and engine API constraints had to be resolved:
+
+1. **Method Binding Requirement for Inspector Visibility**:
+   - In Godot GDExtension, using `ADD_PROPERTY()` alone is **not enough** for properties to show up in the Inspector.
+   - Every setter and getter function (`set_occluder_enabled`, `is_occluder_enabled`, `set_occluder_cull_mode`, `get_occluder_cull_mode`, etc.) **must** be explicitly bound inside `_bind_methods()` using `ClassDB::bind_method(D_METHOD("method_name", "arg"), &ClassName::method_name)`. Without this, Godot silently drops the properties from the Inspector.
+
+2. **Transform Synchronization (`canvas_light_occluder_set_transform`)**:
+   - Canvas light occluders created via `RenderingServer::canvas_light_occluder_create()` exist in global/canvas space and do **not** automatically inherit parent Node2D transforms.
+   - To make the shadow follow the armature, `RenderingServer::get_singleton()->canvas_light_occluder_set_transform(occluder_rid, get_global_transform());` must be called explicitly on every frame/draw (`_draw()`).
+
+3. **RenderingServer API Compatibility (Godot 4.x Bindings)**:
+   - Dedicated functions like `canvas_light_occluder_detach_from_canvas` and `canvas_light_occluder_free` / `canvas_occluder_polygon_free` do not exist in standard 4.x GDExtension wrappers.
+   - Resource cleanup must use the generic `RenderingServer::get_singleton()->free_rid(rid)` method.
+
+4. **Enum & Property Registration Order**:
+   - Enums (`OccluderCullMode`, `OccluderShadowMode`) must be declared publicly in the header, registered with `BIND_ENUM_CONSTANT()` in `_bind_methods()`, and cast via `VARIANT_ENUM_CAST()` at the bottom of the header.
 
 ## Architecture Changes
 
