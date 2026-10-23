@@ -5,6 +5,7 @@
 #include <dragonBones/core/DragonBones.h>
 #include <godot_cpp/classes/node2d.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
+#include <godot_cpp/variant/packed_vector2_array.hpp>
 
 #include "armature.h"
 #include "factory.h"
@@ -18,6 +19,19 @@ public:
 		ANIMATION_CALLBACK_MODE_PROCESS_PHYSICS = 0,
 		ANIMATION_CALLBACK_MODE_PROCESS_IDLE = 1,
 		ANIMATION_CALLBACK_MODE_PROCESS_MANUAL = 2,
+	};
+
+	/** Cull mode for the light occluder polygon. */
+	enum OccluderCullMode {
+		OCCLUDER_CULL_DISABLED = 0,
+		OCCLUDER_CULL_CLOCKWISE = 1,
+		OCCLUDER_CULL_COUNTERCLOCKWISE = 2,
+	};
+
+	/** Shadow mode for the light occluder. */
+	enum OccluderShadowMode {
+		OCCLUDER_SHADOW_DEFAULT = 0,
+		OCCLUDER_SHADOW_FULL_BRIGHT = 1,
 	};
 
 	using AnimFadeOutMode = DragonBonesArmature::AnimFadeOutMode;
@@ -35,6 +49,21 @@ private:
 	int animation_loop_count{ 0 };
 	bool active{ true };
 	bool debug{ false };
+
+	bool occluder_enabled{ false };
+	OccluderCullMode occluder_cull_mode{ OCCLUDER_CULL_DISABLED };
+	int occluder_light_mask{ 1 };
+	int occluder_polygon_mode{ 0 }; // 0: Raw Mesh, 1: Convex Hull
+	float occluder_shadow_offset_x{ 0.0f };
+	float occluder_shadow_offset_y{ 0.0f };
+	OccluderShadowMode occluder_shadow_mode{ OCCLUDER_SHADOW_DEFAULT };
+
+	RID occluder_rid;
+	RID occluder_polygon_rid;
+	PackedVector2Array occluder_polygon;
+	bool occluder_attached_to_canvas{ false };
+	bool light_mask_saved{ false };
+	int saved_light_mask{ 1 };
 
 	LocalVector<RID> draw_meshes;
 
@@ -95,6 +124,29 @@ public:
 
 	void set_debug(bool p_debug);
 	bool is_debug() const;
+
+	void set_occluder_enabled(bool p_enabled);
+	bool is_occluder_enabled() const;
+
+	void set_occluder_cull_mode(OccluderCullMode p_mode);
+	OccluderCullMode get_occluder_cull_mode() const;
+
+	void set_occluder_light_mask(int p_mask);
+	int get_occluder_light_mask() const;
+
+	void set_occluder_polygon_mode(int p_mode);
+	int get_occluder_polygon_mode() const;
+
+	void set_occluder_shadow_offset_x(float p_offset);
+	float get_occluder_shadow_offset_x() const;
+
+	void set_occluder_shadow_offset_y(float p_offset);
+	float get_occluder_shadow_offset_y() const;
+
+	void set_occluder_shadow_mode(OccluderShadowMode p_mode);
+	OccluderShadowMode get_occluder_shadow_mode() const;
+
+	void apply_occluder_shadow_layering();
 
 	DragonBonesArmature *get_armature();
 
@@ -171,3 +223,5 @@ private:
 } //namespace godot
 
 VARIANT_ENUM_CAST(godot::DragonBonesArmatureView::AnimationCallbackModeProcess);
+VARIANT_ENUM_CAST(godot::DragonBonesArmatureView::OccluderCullMode);
+VARIANT_ENUM_CAST(godot::DragonBonesArmatureView::OccluderShadowMode);
