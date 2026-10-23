@@ -1,0 +1,28 @@
+.cache/
+
+*.obj
+*.os
+
+compile_commands.json
+
+.sconsign.dblite
+
+project/bin
+
+*.pdb
+
+.vscode/
+
+project/
+
+# Cmake
+build/
+
+# scons
+bin/
+
+__pycache__/
+.godot/
+gen/
+
+*.log
