@@ -1,4 +1,4 @@
-# Godot-DragonBones Plugin
+# Godot-DragonBones Plugin (This is not real fork, you can visit the original repo at https://github.com/Daylily-Zeleen/Godot-DragonBones)
 
 ![image](demo/addons/godot_dragon_bones.daylily-zeleen/doc/doc_icon.png)
 
